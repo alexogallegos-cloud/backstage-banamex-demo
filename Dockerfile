@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile para Railway
+# Multi-stage Dockerfile para Railway — BDP Banamex Demo
 # Etapa 1: Build completo (frontend + backend)
 FROM node:24-bookworm-slim AS build
 
