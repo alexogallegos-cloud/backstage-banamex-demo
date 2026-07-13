@@ -27,7 +27,7 @@ RUN apt-get update && \
 USER node
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV NODE_OPTIONS="--no-node-snapshot"
 
 # Skeleton = estructura de package.json de todos los workspaces
