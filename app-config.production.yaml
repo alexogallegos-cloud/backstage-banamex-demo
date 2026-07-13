@@ -32,6 +32,16 @@ catalog:
         - allow: [Template]
 
     - type: file
+      target: ./examples/template/templates-test.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ./examples/template/templates-extra.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
       target: ./examples/org.yaml
       rules:
         - allow: [User, Group]

@@ -1,0 +1,13 @@
+site_name: Banamex Technology — Developer Docs
+site_description: Documentación técnica de la plataforma tecnológica Banamex
+docs_dir: docs
+
+plugins:
+  - techdocs-core
+
+nav:
+  - Inicio: index.md
+  - Arquitectura: arquitectura.md
+  - API Reference: api-reference.md
+  - Runbook Operacional: runbook.md
+  - Getting Started: getting-started.md

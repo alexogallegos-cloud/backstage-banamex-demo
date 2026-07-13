@@ -1,0 +1,27 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: test-quarkus
+  title: TEST — Quarkus Service
+  description: Template de prueba para debugging
+  tags: [test, quarkus]
+spec:
+  owner: group:plataforma-ti
+  type: service
+  parameters:
+    - title: Nombre
+      required: [name]
+      properties:
+        name:
+          title: Nombre del servicio
+          type: string
+  steps:
+    - id: log
+      name: Log
+      action: debug:log
+      input:
+        message: test ${{ parameters.name }}
+  output:
+    links:
+      - title: Listo
+        icon: catalog

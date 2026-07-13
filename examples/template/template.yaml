@@ -107,11 +107,11 @@ spec:
         cicdPlatform:
           title: Motor de CI/CD
           type: string
-          default: jenkins
-          enum: [jenkins, tekton]
+          default: github-actions
+          enum: [github-actions, tekton]
           enumNames:
-            - Jenkins (pipelines existentes)
-            - Tekton — OpenShift Pipelines (nuevo)
+            - GitHub Actions (estándar Banamex — recomendado)
+            - Tekton — OpenShift Pipelines (on-premise)
         ocpNamespace:
           title: Namespace destino en OpenShift
           type: string
@@ -179,9 +179,911 @@ spec:
       - title: Ver repositorio en GitLab
         url: 'https://gitlab.banamex.com/${{ parameters.gitlabGroup }}/${{ parameters.serviceName }}'
         icon: gitlab
-      - title: Pipeline CI/CD
-        url: 'https://jenkins.banamex.com/job/${{ parameters.gitlabGroup }}/${{ parameters.serviceName }}'
+      - title: GitHub Actions — Pipeline
+        url: 'https://github.com/banamex-tech/${{ parameters.serviceName }}/actions'
         icon: dashboard
       - title: Ver en Software Catalog
         icon: catalog
         entityRef: 'component:default/${{ parameters.serviceName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-quarkus-service
+  title: Microservicio Quarkus Native — OpenShift
+  description: Microservicio Quarkus 3.x con GraalVM Native Image. Arranque menor a 50ms, footprint minimo en OpenShift. Ideal para alta concurrencia.
+  tags: [quarkus, java, openshift, native, graalvm, recomendado]
+spec:
+  owner: group:plataforma-ti
+  type: service
+  parameters:
+    - title: Identificacion del Servicio
+      required: [serviceName, serviceDescription, businessDomain]
+      properties:
+        serviceName:
+          title: Nombre del servicio
+          type: string
+          description: Nombre en kebab-case (ej. conciliacion-fx, posicion-cartera)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        serviceDescription:
+          title: Descripcion funcional
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        businessDomain:
+          title: Dominio de negocio
+          type: string
+          enum: [core-banking, canales-digitales, pagos-transferencias, creditos, riesgo-fraude, cumplimiento-regulatorio, data-analytics, plataforma-ti]
+          enumNames:
+            - Core Banking
+            - Canales Digitales
+            - Pagos y Transferencias
+            - Creditos
+            - Riesgo y Fraude
+            - Cumplimiento Regulatorio
+            - Data y Analytics
+            - Plataforma TI
+    - title: Stack Quarkus
+      required: [buildMode, dbType]
+      properties:
+        buildMode:
+          title: Modo de compilacion
+          type: string
+          default: native
+          enum: [native, jvm]
+          enumNames:
+            - Native Image con GraalVM (recomendado para prod)
+            - JVM Mode (desarrollo rapido)
+        javaVersion:
+          title: Version de Java
+          type: string
+          default: '21'
+          enum: ['17', '21']
+          enumNames: [Java 17 LTS, Java 21 LTS con Virtual Threads]
+        reactiveStack:
+          title: Programacion reactiva con Mutiny
+          type: boolean
+          default: true
+        dbType:
+          title: Base de datos
+          type: string
+          default: postgresql
+          enum: [postgresql, oracle, mongodb, none]
+          enumNames: [PostgreSQL 15 con Panache, Oracle 19c con Panache, MongoDB con Panache Document, Sin base de datos]
+        kafkaEnabled:
+          title: Mensajeria Kafka con SmallRye
+          type: boolean
+          default: false
+        exposeGrpc:
+          title: Expone gRPC ademas de REST
+          type: boolean
+          default: false
+        cnbvScope:
+          title: En scope regulatorio CNBV/Banxico
+          type: boolean
+          default: false
+    - title: Despliegue en OpenShift
+      required: [ocpNamespace, ownerTeam]
+      properties:
+        ocpNamespace:
+          title: Namespace en OpenShift
+          type: string
+          default: banamex-dev
+        replicas:
+          title: Replicas en produccion
+          type: integer
+          default: 3
+          minimum: 1
+          maximum: 20
+        ownerTeam:
+          title: Equipo owner
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Generando proyecto Quarkus
+      action: debug:log
+      input:
+        message: 'Creando Quarkus ${{ parameters.buildMode }} service: ${{ parameters.serviceName }} en ${{ parameters.ocpNamespace }}'
+  output:
+    links:
+      - title: Repositorio GitHub
+        url: 'https://github.com/banamex-tech/${{ parameters.serviceName }}'
+        icon: github
+      - title: GitHub Actions Pipeline
+        url: 'https://github.com/banamex-tech/${{ parameters.serviceName }}/actions'
+        icon: dashboard
+      - title: OpenShift Console
+        url: 'https://openshift.banamex.com/k8s/ns/${{ parameters.ocpNamespace }}/deployments'
+        icon: dashboard
+      - title: Ver en Catalogo BDP
+        icon: catalog
+        entityRef: 'component:default/${{ parameters.serviceName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-apigee-proxy
+  title: API Proxy — Apigee X
+  description: Configura un nuevo API Proxy en Apigee X con OAuth 2.0, rate limiting, CORS y registro en el catalogo BDP.
+  tags: [apigee, api-gateway, openapi, oauth2, gcp, externo]
+spec:
+  owner: group:plataforma-ti
+  type: api
+  parameters:
+    - title: Identificacion del Proxy
+      required: [proxyName, basePath, backendUrl, proxyDescription]
+      properties:
+        proxyName:
+          title: Nombre del proxy
+          type: string
+          description: Nombre unico en Apigee (ej. open-banking-v1, pagos-externos-v2)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        proxyDescription:
+          title: Descripcion del API
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        basePath:
+          title: Base path del proxy
+          type: string
+          description: Path en Apigee (ej. /v1/pagos, /v2/cuentas-ext)
+          default: /v1/
+        backendUrl:
+          title: URL del backend target
+          type: string
+          description: URL interna del microservicio (ej. http://pagos-service.core-banking.svc)
+        apiVersion:
+          title: Version del API
+          type: string
+          default: v1
+          enum: [v1, v2, v3]
+    - title: Seguridad y Politicas
+      required: [authType]
+      properties:
+        authType:
+          title: Tipo de autenticacion
+          type: string
+          default: oauth2
+          enum: [oauth2, apikey, mtls, none]
+          enumNames:
+            - OAuth 2.0 Authorization Code (recomendado para partners)
+            - API Key (integraciones simples)
+            - mTLS Mutual TLS (regulatorio CNBV)
+            - Sin autenticacion (solo red interna)
+        rateLimitPerMinute:
+          title: Rate limit por minuto por cliente
+          type: integer
+          default: 1000
+          minimum: 10
+          maximum: 100000
+        corsEnabled:
+          title: Habilitar CORS
+          type: boolean
+          default: true
+        cacheEnabled:
+          title: Habilitar cache de respuestas
+          type: boolean
+          default: false
+        openFinanceCompliant:
+          title: Cumple estandar Open Finance CNBV
+          type: boolean
+          default: false
+    - title: Equipo
+      required: [ownerTeam]
+      properties:
+        ownerTeam:
+          title: Equipo responsable
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Creando proxy en Apigee X
+      action: debug:log
+      input:
+        message: 'Configurando API Proxy ${{ parameters.proxyName }} en Apigee X. Auth: ${{ parameters.authType }} | Rate limit: ${{ parameters.rateLimitPerMinute }} rpm'
+  output:
+    links:
+      - title: Apigee Console
+        url: https://console.cloud.google.com/apigee/proxies
+        icon: dashboard
+      - title: Developer Portal Banamex
+        url: https://developers.banamex.com
+        icon: docs
+      - title: API en Catalogo BDP
+        icon: catalog
+        entityRef: 'api:default/${{ parameters.proxyName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-aws-lambda
+  title: AWS Lambda — Funcion Serverless
+  description: Funcion Lambda con trigger configurable (API Gateway, EventBridge, SQS, S3). Incluye IaC Terraform, pipeline GitHub Actions y registro en catalogo BDP.
+  tags: [aws, lambda, serverless, terraform, python, nodejs]
+spec:
+  owner: group:plataforma-ti
+  type: service
+  parameters:
+    - title: Identificacion de la Funcion
+      required: [functionName, functionDescription, runtime, trigger]
+      properties:
+        functionName:
+          title: Nombre de la funcion
+          type: string
+          description: Nombre en kebab-case (ej. procesar-webhook-spei, exportar-reportes-cnbv)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        functionDescription:
+          title: Descripcion funcional
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        runtime:
+          title: Runtime
+          type: string
+          default: python3.12
+          enum: [python3.12, nodejs20.x, java21, dotnet8]
+          enumNames:
+            - Python 3.12 (data, integraciones)
+            - Node.js 20.x (webhooks, APIs ligeras)
+            - Java 21 (Spring Cloud Function)
+            - .NET 8 (integraciones Microsoft)
+        trigger:
+          title: Tipo de trigger
+          type: string
+          default: api-gateway
+          enum: [api-gateway, eventbridge, sqs, s3, dynamodb-streams, sns, scheduled]
+          enumNames:
+            - API Gateway REST (endpoint HTTP)
+            - EventBridge (eventos de dominio)
+            - SQS Queue (procesamiento de colas)
+            - S3 Event (archivos subidos)
+            - DynamoDB Streams CDC
+            - SNS Topic fan-out
+            - Scheduled CloudWatch Events
+    - title: Configuracion de Recursos
+      properties:
+        memoryMb:
+          title: Memoria en MB
+          type: integer
+          default: 512
+          enum: [128, 256, 512, 1024, 2048, 4096, 10240]
+        timeoutSeconds:
+          title: Timeout en segundos
+          type: integer
+          default: 30
+          minimum: 1
+          maximum: 900
+        architecture:
+          title: Arquitectura del procesador
+          type: string
+          default: arm64
+          enum: [arm64, x86_64]
+          enumNames:
+            - ARM64 Graviton2 (20 por ciento mas economico)
+            - x86_64 (compatibilidad maxima)
+        vpcEnabled:
+          title: Desplegar dentro de VPC privada
+          type: boolean
+          default: true
+    - title: Ambiente y Equipo
+      required: [awsAccount, awsRegion, ownerTeam]
+      properties:
+        awsAccount:
+          title: Cuenta AWS destino
+          type: string
+          default: prod
+          enum: [dev, staging, prod, sandbox]
+          enumNames:
+            - Development 123456789012
+            - Staging 234567890123
+            - Production 345678901234
+            - Sandbox 999999999999
+        awsRegion:
+          title: Region AWS
+          type: string
+          default: us-east-1
+          enum: [us-east-1, us-west-2, eu-west-1]
+          enumNames:
+            - us-east-1 Norte de Virginia (principal)
+            - us-west-2 Oregon (DR)
+            - eu-west-1 Irlanda (clientes europeos)
+        iacTool:
+          title: Herramienta IaC
+          type: string
+          default: terraform
+          enum: [terraform, cdk, sam]
+          enumNames:
+            - Terraform (estandar Banamex)
+            - AWS CDK TypeScript
+            - AWS SAM (solo Lambdas)
+        ownerTeam:
+          title: Equipo responsable
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Provisionando Lambda en AWS
+      action: debug:log
+      input:
+        message: 'Creando Lambda ${{ parameters.functionName }} runtime=${{ parameters.runtime }} trigger=${{ parameters.trigger }} memoria=${{ parameters.memoryMb }}MB region=${{ parameters.awsRegion }}'
+  output:
+    links:
+      - title: AWS Lambda Console
+        url: https://console.aws.amazon.com/lambda
+        icon: dashboard
+      - title: GitHub Actions Pipeline
+        url: 'https://github.com/banamex-tech/${{ parameters.functionName }}/actions'
+        icon: dashboard
+      - title: Ver en Catalogo BDP
+        icon: catalog
+        entityRef: 'component:default/${{ parameters.functionName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-kafka-stream
+  title: Kafka Streams — Servicio Event-Driven
+  description: Microservicio Spring Boot con Kafka Streams. Schema Avro en Schema Registry, consumer group, DLQ y monitoreo en Dynatrace.
+  tags: [kafka, spring-boot, event-driven, avro, streaming, openshift]
+spec:
+  owner: group:plataforma-ti
+  type: service
+  parameters:
+    - title: Identificacion del Servicio
+      required: [serviceName, serviceDescription, businessDomain]
+      properties:
+        serviceName:
+          title: Nombre del servicio
+          type: string
+          description: Nombre en kebab-case (ej. procesador-alertas-fraude)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        serviceDescription:
+          title: Descripcion funcional
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        businessDomain:
+          title: Dominio de negocio
+          type: string
+          enum: [core-banking, riesgo-fraude, canales-digitales, cumplimiento-regulatorio, data-analytics]
+          enumNames:
+            - Core Banking
+            - Riesgo y Fraude
+            - Canales Digitales
+            - Cumplimiento Regulatorio
+            - Data y Analytics
+    - title: Configuracion Kafka
+      required: [inputTopic, outputTopic, consumerGroup, messageFormat]
+      properties:
+        inputTopic:
+          title: Topic de entrada
+          type: string
+          description: Topic Kafka a consumir (ej. banamex.transacciones.v1)
+        outputTopic:
+          title: Topic de salida
+          type: string
+          description: Topic donde publica resultados
+        consumerGroup:
+          title: Consumer Group ID
+          type: string
+          description: Identificador del consumer group
+        messageFormat:
+          title: Formato de mensajes
+          type: string
+          default: avro
+          enum: [avro, json, protobuf]
+          enumNames:
+            - Avro con Schema Registry (recomendado para produccion)
+            - JSON Schema (desarrollo rapido)
+            - Protocol Buffers (gRPC compatible)
+        kafkaApi:
+          title: API de procesamiento
+          type: string
+          default: kafka-streams
+          enum: [kafka-streams, spring-cloud-stream, consumer-producer]
+          enumNames:
+            - Kafka Streams (procesamiento stateful con KTable)
+            - Spring Cloud Stream (binding declarativo)
+            - Consumer mas Producer manual (maximo control)
+    - title: Despliegue
+      required: [ocpNamespace, ownerTeam]
+      properties:
+        ocpNamespace:
+          title: Namespace en OpenShift
+          type: string
+          default: banamex-dev
+        ownerTeam:
+          title: Equipo responsable
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Configurando servicio Kafka Streams
+      action: debug:log
+      input:
+        message: 'Creando Kafka service ${{ parameters.serviceName }}. Input: ${{ parameters.inputTopic }} | Output: ${{ parameters.outputTopic }} | Format: ${{ parameters.messageFormat }}'
+  output:
+    links:
+      - title: Kafka UI Topics
+        url: https://kafka.banamex.com/topics
+        icon: dashboard
+      - title: GitHub Actions Pipeline
+        url: 'https://github.com/banamex-tech/${{ parameters.serviceName }}/actions'
+        icon: dashboard
+      - title: Ver en Catalogo BDP
+        icon: catalog
+        entityRef: 'component:default/${{ parameters.serviceName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-gcp-cloudrun
+  title: GCP Cloud Run — Servicio Serverless Containerizado
+  description: Servicio serverless en GCP Cloud Run con autoescala a cero, integracion con Apigee X y VPC Service Controls para cumplimiento CNBV.
+  tags: [gcp, cloud-run, serverless, container, terraform]
+spec:
+  owner: group:plataforma-ti
+  type: service
+  parameters:
+    - title: Identificacion del Servicio
+      required: [serviceName, serviceDescription, runtime]
+      properties:
+        serviceName:
+          title: Nombre del servicio
+          type: string
+          description: Nombre en kebab-case (ej. validador-curp, consultor-renapo)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        serviceDescription:
+          title: Descripcion funcional
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        runtime:
+          title: Runtime base
+          type: string
+          default: java21
+          enum: [java21, python312, nodejs20, go122, dotnet8]
+          enumNames:
+            - Java 21 Spring Boot 3.x
+            - Python 3.12 FastAPI o Flask
+            - Node.js 20 Express o Fastify
+            - Go 1.22 alta eficiencia minimo footprint
+            - .NET 8 integraciones Microsoft
+    - title: Configuracion de Cloud Run
+      properties:
+        region:
+          title: Region GCP
+          type: string
+          default: us-central1
+          enum: [us-central1, us-east1, northamerica-northeast1, europe-west1]
+          enumNames:
+            - us-central1 Iowa (principal, menor latencia desde MX)
+            - us-east1 South Carolina
+            - northamerica-northeast1 Montreal (datos en Norteamerica)
+            - europe-west1 Belgica (clientes europeos)
+        minInstances:
+          title: Instancias minimas (0 escala a cero)
+          type: integer
+          default: 0
+          minimum: 0
+          maximum: 100
+        maxInstances:
+          title: Instancias maximas
+          type: integer
+          default: 10
+          minimum: 1
+          maximum: 1000
+        invokerAccess:
+          title: Acceso al servicio
+          type: string
+          default: authenticated
+          enum: [authenticated, all-users]
+          enumNames:
+            - Solo cuentas autenticadas (recomendado)
+            - Publico sin autenticacion
+        dbType:
+          title: Base de datos GCP
+          type: string
+          default: none
+          enum: [none, cloud-sql-postgres, cloud-sql-mysql, firestore, spanner]
+          enumNames:
+            - Sin base de datos
+            - Cloud SQL PostgreSQL 15
+            - Cloud SQL MySQL 8
+            - Firestore documentos NoSQL
+            - Cloud Spanner global alta disponibilidad
+    - title: Proyecto y Equipo
+      required: [ownerTeam, gcpProject]
+      properties:
+        gcpProject:
+          title: GCP Project ID
+          type: string
+          default: banamex-apis-prod
+          enum: [banamex-apis-prod, banamex-apis-dev, banamex-ml-prod, banamex-data-prod]
+          enumNames:
+            - banamex-apis-prod (APIs y microservicios)
+            - banamex-apis-dev (desarrollo y QA)
+            - banamex-ml-prod (modelos ML e IA)
+            - banamex-data-prod (datos y analytics)
+        ownerTeam:
+          title: Equipo responsable
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Desplegando en GCP Cloud Run
+      action: debug:log
+      input:
+        message: 'Creando Cloud Run ${{ parameters.serviceName }} en ${{ parameters.gcpProject }} region=${{ parameters.region }} runtime=${{ parameters.runtime }}'
+  output:
+    links:
+      - title: GCP Cloud Run Console
+        url: https://console.cloud.google.com/run
+        icon: dashboard
+      - title: GitHub Actions Pipeline
+        url: 'https://github.com/banamex-tech/${{ parameters.serviceName }}/actions'
+        icon: dashboard
+      - title: Ver en Catalogo BDP
+        icon: catalog
+        entityRef: 'component:default/${{ parameters.serviceName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-angular-frontend
+  title: Frontend Angular — Banca Digital
+  description: SPA Angular 17/18 con arquitectura standalone, autenticacion OIDC, accesibilidad WCAG 2.1 AA y despliegue en OpenShift con Nginx.
+  tags: [angular, typescript, frontend, openshift, pwa, banca-digital]
+spec:
+  owner: group:banca-digital
+  type: website
+  parameters:
+    - title: Identificacion del Frontend
+      required: [appName, appDescription, appModule]
+      properties:
+        appName:
+          title: Nombre de la aplicacion
+          type: string
+          description: Nombre en kebab-case (ej. portal-empresas, simulador-credito)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        appDescription:
+          title: Descripcion funcional
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        appModule:
+          title: Modulo de Banca Digital
+          type: string
+          enum: [banca-personas, banca-empresas, onboarding, inversiones, creditos-digitales, open-banking-portal]
+          enumNames:
+            - Banca Personas (clientes individuales)
+            - Banca Empresas (PyMEs y corporativos)
+            - Onboarding Digital (alta de clientes)
+            - Inversiones (fondos, CETES, acciones)
+            - Creditos Digitales (solicitud en linea)
+            - Open Banking Portal (TPPs y fintechs)
+    - title: Stack Angular
+      required: [angularVersion]
+      properties:
+        angularVersion:
+          title: Version de Angular
+          type: string
+          default: '18'
+          enum: ['17', '18']
+          enumNames:
+            - Angular 17 con Signals y standalone
+            - Angular 18 Zoneless y Control Flow
+        renderingStrategy:
+          title: Estrategia de rendering
+          type: string
+          default: csr
+          enum: [csr, ssr, ssg]
+          enumNames:
+            - CSR Client Side Rendering SPA estandar
+            - SSR Server Side Rendering Angular Universal
+            - SSG Static Site Generation maxima performance
+        stateManagement:
+          title: Gestion de estado
+          type: string
+          default: signals
+          enum: [signals, ngrx, none]
+          enumNames:
+            - Angular Signals (recomendado built-in)
+            - NgRx Redux pattern apps grandes
+            - Sin gestion de estado
+        pwaEnabled:
+          title: Habilitar Progressive Web App
+          type: boolean
+          default: true
+        authProvider:
+          title: Proveedor de autenticacion
+          type: string
+          default: oidc-keycloak
+          enum: [oidc-keycloak, msal-azure, biometrica-banamex]
+          enumNames:
+            - OIDC mas KeyCloak (estandar Banamex)
+            - MSAL mas Azure AD
+            - Biometrica Banamex facial mas NIP
+    - title: Despliegue
+      required: [ocpNamespace, ownerTeam]
+      properties:
+        ocpNamespace:
+          title: Namespace en OpenShift
+          type: string
+          default: banca-digital-dev
+        cdnEnabled:
+          title: Usar CDN Akamai para assets estaticos
+          type: boolean
+          default: true
+        ownerTeam:
+          title: Equipo responsable
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Generando proyecto Angular
+      action: debug:log
+      input:
+        message: 'Creando Angular ${{ parameters.angularVersion }} app ${{ parameters.appName }} modulo=${{ parameters.appModule }} PWA=${{ parameters.pwaEnabled }}'
+  output:
+    links:
+      - title: Repositorio GitHub
+        url: 'https://github.com/banamex-tech/${{ parameters.appName }}'
+        icon: github
+      - title: GitHub Actions Pipeline
+        url: 'https://github.com/banamex-tech/${{ parameters.appName }}/actions'
+        icon: dashboard
+      - title: OpenShift Route
+        url: 'https://${{ parameters.appName }}.apps.banamex.com'
+        icon: dashboard
+      - title: Ver en Catalogo BDP
+        icon: catalog
+        entityRef: 'component:default/${{ parameters.appName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-kafka-topic
+  title: Kafka Topic — Data Platform
+  description: Crea un Kafka topic con particiones, retencion y schema Avro en Schema Registry. Documenta productores y consumidores en el catalogo BDP.
+  tags: [kafka, avro, schema-registry, data, streaming]
+spec:
+  owner: group:data-analytics
+  type: resource
+  parameters:
+    - title: Identificacion del Topic
+      required: [topicName, topicDescription, eventDomain]
+      properties:
+        topicName:
+          title: Nombre del topic
+          type: string
+          description: 'Convencion: banamex.{dominio}.{evento}.{version} (ej. banamex.core.transaccion-creada.v1)'
+          pattern: '^banamex\.[a-z-]+\.[a-z-]+\.v[0-9]+$'
+          ui:autofocus: true
+        topicDescription:
+          title: Descripcion del evento
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 4
+        eventDomain:
+          title: Dominio del evento
+          type: string
+          enum: [core, pagos, fraude, notificaciones, cumplimiento, datos, clientes]
+          enumNames:
+            - Core Banking
+            - Pagos y Transferencias
+            - Fraude y Riesgo
+            - Notificaciones multicanal
+            - Cumplimiento Regulatorio
+            - Datos y Analytics
+            - Clientes y CRM
+    - title: Configuracion del Topic
+      properties:
+        partitions:
+          title: Numero de particiones
+          type: integer
+          default: 12
+          enum: [1, 3, 6, 12, 24, 48, 96]
+        replicationFactor:
+          title: Factor de replicacion
+          type: integer
+          default: 3
+          enum: [1, 2, 3]
+          enumNames:
+            - 1 solo dev sin alta disponibilidad
+            - 2 staging
+            - 3 produccion recomendado
+        retentionDays:
+          title: Retencion de mensajes en dias
+          type: integer
+          default: 7
+          enum: [1, 3, 7, 30, 90, 365]
+          enumNames:
+            - 1 dia
+            - 3 dias
+            - 7 dias recomendado
+            - 30 dias
+            - 90 dias
+            - 1 ano regulatorio CNBV
+        schemaFormat:
+          title: Formato de schema
+          type: string
+          default: avro
+          enum: [avro, json-schema, protobuf]
+          enumNames:
+            - Apache Avro recomendado
+            - JSON Schema
+            - Protocol Buffers
+        dataSensitivity:
+          title: Clasificacion de datos
+          type: string
+          default: confidential
+          enum: [public, internal, confidential, restricted]
+          enumNames:
+            - Publico
+            - Interno
+            - Confidencial datos de cliente
+            - Restringido datos regulatorios
+    - title: Equipo
+      required: [ownerTeam]
+      properties:
+        ownerTeam:
+          title: Equipo responsable del schema
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Provisionando Kafka Topic
+      action: debug:log
+      input:
+        message: 'Creando topic ${{ parameters.topicName }} partitions=${{ parameters.partitions }} replication=${{ parameters.replicationFactor }} schema=${{ parameters.schemaFormat }}'
+  output:
+    links:
+      - title: Kafka UI Nuevo Topic
+        url: 'https://kafka.banamex.com/topics/${{ parameters.topicName }}'
+        icon: dashboard
+      - title: Schema Registry
+        url: 'https://schema-registry.banamex.com/subjects/${{ parameters.topicName }}-value'
+        icon: docs
+      - title: Ver en Catalogo BDP
+        icon: catalog
+        entityRef: 'resource:default/${{ parameters.topicName }}'
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-terraform-module
+  title: Modulo Terraform — Infraestructura Cloud
+  description: Modulo Terraform reutilizable para AWS o GCP con tests Terratest, analisis tfsec y Checkov, y publicacion en el registry privado de Banamex.
+  tags: [terraform, iac, aws, gcp, infraestructura, devops]
+spec:
+  owner: group:plataforma-ti
+  type: resource
+  parameters:
+    - title: Identificacion del Modulo
+      required: [moduleName, moduleDescription, cloudProvider, resourceType]
+      properties:
+        moduleName:
+          title: Nombre del modulo
+          type: string
+          description: Nombre en kebab-case sin prefijo (ej. rds-postgres-ha, vpc-banamex-std)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        moduleDescription:
+          title: Descripcion del modulo
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        cloudProvider:
+          title: Proveedor cloud
+          type: string
+          enum: [aws, gcp, both]
+          enumNames: [AWS, Google Cloud Platform, Multi-cloud AWS y GCP]
+        resourceType:
+          title: Tipo de recurso principal
+          type: string
+          enum: [networking, compute, database, storage, security, messaging, kubernetes, serverless, monitoring]
+          enumNames:
+            - Networking VPC subnets DNS
+            - Compute EC2 GCE instancias
+            - Database RDS Cloud SQL Spanner
+            - Storage S3 GCS EFS
+            - Security IAM KMS Secret Manager
+            - Messaging SQS SNS PubSub
+            - Kubernetes EKS GKE node pools
+            - Serverless Lambda Cloud Run
+            - Monitoring CloudWatch Cloud Monitoring
+    - title: Configuracion y Testing
+      properties:
+        terraformVersion:
+          title: Version minima de Terraform
+          type: string
+          default: '~> 1.7'
+          enum: ['~> 1.6', '~> 1.7', '~> 1.8']
+        terratestEnabled:
+          title: Agregar tests con Terratest Go
+          type: boolean
+          default: true
+        tfsecEnabled:
+          title: Analisis de seguridad con tfsec
+          type: boolean
+          default: true
+        checkovEnabled:
+          title: Analisis de compliance con Checkov
+          type: boolean
+          default: true
+        publishToRegistry:
+          title: Publicar en Terraform Registry privado
+          type: boolean
+          default: true
+    - title: Equipo
+      required: [ownerTeam]
+      properties:
+        ownerTeam:
+          title: Equipo responsable
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+  steps:
+    - id: log
+      name: Creando modulo Terraform
+      action: debug:log
+      input:
+        message: 'Creando modulo terraform-${{ parameters.cloudProvider }}-${{ parameters.moduleName }} tipo=${{ parameters.resourceType }} Terratest=${{ parameters.terratestEnabled }} tfsec=${{ parameters.tfsecEnabled }}'
+  output:
+    links:
+      - title: Repositorio GitHub del modulo
+        url: 'https://github.com/banamex-tech/terraform-${{ parameters.moduleName }}'
+        icon: github
+      - title: GitHub Actions Pipeline
+        url: 'https://github.com/banamex-tech/terraform-${{ parameters.moduleName }}/actions'
+        icon: dashboard
+      - title: Ver en Catalogo BDP
+        icon: catalog
+        entityRef: 'resource:default/tf-${{ parameters.moduleName }}'

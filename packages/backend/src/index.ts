@@ -33,8 +33,12 @@ backend.add(
   import('@backstage/plugin-permission-backend-module-allow-all-policy'),
 );
 
+// techdocs
+backend.add(import('@backstage/plugin-techdocs-backend'));
+
 // search — Lunr en memoria (sin PostgreSQL)
 backend.add(import('@backstage/plugin-search-backend'));
 backend.add(import('@backstage/plugin-search-backend-module-catalog'));
+backend.add(import('@backstage/plugin-search-backend-module-techdocs'));
 
 backend.start();

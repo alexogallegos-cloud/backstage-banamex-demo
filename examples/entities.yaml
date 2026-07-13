@@ -134,7 +134,7 @@ metadata:
   annotations:
     backstage.io/techdocs-ref: dir:.
     gitlab.com/project-slug: core-banking/cuentas-service
-    jenkins.io/job-full-name: core-banking/cuentas-service/main
+    github.com/project-slug: banamex-tech/cuentas-service
     sonarqube.org/project-key: banamex-cuentas-service
   tags: [spring-boot, java-17, rest-api, produccion, cnbv]
   links:
@@ -161,8 +161,9 @@ metadata:
   title: Transferencias Service
   description: Microservicio de transferencias interbancarias — SPEI, SPID y transferencias internas. Regulado CNBV/Banxico.
   annotations:
+    backstage.io/techdocs-ref: dir:.
     gitlab.com/project-slug: core-banking/transferencias-service
-    jenkins.io/job-full-name: core-banking/transferencias-service/main
+    github.com/project-slug: banamex-tech/transferencias-service
     sonarqube.org/project-key: banamex-transferencias-service
   tags: [spring-boot, java-17, rest-api, produccion, cnbv, spei, banxico]
   links:
@@ -185,7 +186,7 @@ metadata:
   description: Microservicio de pagos de servicios — CFE, Telmex, SAT y más de 200 convenios CIE activos
   annotations:
     gitlab.com/project-slug: core-banking/pagos-service
-    jenkins.io/job-full-name: core-banking/pagos-service/main
+    github.com/project-slug: banamex-tech/pagos-service
   tags: [spring-boot, java-17, rest-api, produccion, cie]
   links:
     - url: https://gitlab.banamex.com/core-banking/pagos-service
@@ -207,7 +208,7 @@ metadata:
   description: Microservicio de créditos personales, automotrices e hipotecarios — originación, dispersión y cobranza
   annotations:
     gitlab.com/project-slug: core-banking/creditos-service
-    jenkins.io/job-full-name: core-banking/creditos-service/main
+    github.com/project-slug: banamex-tech/creditos-service
     sonarqube.org/project-key: banamex-creditos-service
   tags: [spring-boot, java-17, rest-api, produccion, cnbv, credito]
   links:
@@ -230,7 +231,7 @@ metadata:
   description: Microservicio de identidad — tokens JWT, MFA, biométrica facial, OTP y gestión de sesiones SSG Banamex
   annotations:
     gitlab.com/project-slug: seguridad/autenticacion-service
-    jenkins.io/job-full-name: seguridad/autenticacion-service/main
+    github.com/project-slug: banamex-tech/autenticacion-service
   tags: [spring-boot, java-17, iam, mfa, biometrica, seguridad, produccion]
   links:
     - url: https://gitlab.banamex.com/seguridad/autenticacion-service
@@ -255,7 +256,7 @@ metadata:
   description: SPA Angular 17 — banca en línea para personas físicas y empresas (4.2M usuarios activos)
   annotations:
     gitlab.com/project-slug: banca-digital/portal-web
-    jenkins.io/job-full-name: banca-digital/portal-web/main
+    github.com/project-slug: banamex-tech/portal-web
   tags: [angular, typescript, frontend, produccion, pwa]
   links:
     - url: https://gitlab.banamex.com/banca-digital/portal-web
@@ -276,7 +277,7 @@ metadata:
   description: BFF Spring Boot para la app móvil iOS/Android — agrega APIs y optimiza respuestas para mobile
   annotations:
     gitlab.com/project-slug: banca-digital/app-movil-bff
-    jenkins.io/job-full-name: banca-digital/app-movil-bff/main
+    github.com/project-slug: banamex-tech/app-movil-bff
   tags: [spring-boot, java-17, bff, mobile, produccion]
   links:
     - url: https://gitlab.banamex.com/banca-digital/app-movil-bff
@@ -297,7 +298,7 @@ metadata:
   description: Microservicio de notificaciones multicanal — push iOS/Android, SMS, email y WhatsApp Business
   annotations:
     gitlab.com/project-slug: banca-digital/notificaciones-service
-    jenkins.io/job-full-name: banca-digital/notificaciones-service/main
+    github.com/project-slug: banamex-tech/notificaciones-service
   tags: [spring-boot, java-17, kafka, notificaciones, produccion]
   links:
     - url: https://gitlab.banamex.com/banca-digital/notificaciones-service
@@ -323,7 +324,7 @@ metadata:
   description: Servicio de scoring crediticio en tiempo real — modelos ML (XGBoost + LightGBM) sobre Java 17 + Python sidecar
   annotations:
     gitlab.com/project-slug: riesgo/scoring-service
-    jenkins.io/job-full-name: riesgo/scoring-service/main
+    github.com/project-slug: banamex-tech/scoring-service
     sonarqube.org/project-key: banamex-scoring-service
   tags: [spring-boot, python, ml, xgboost, scoring, produccion, cnbv]
   links:
@@ -346,7 +347,7 @@ metadata:
   description: Motor de reglas y modelos ML para detección de fraude transaccional en tiempo real — latencia < 50ms P99
   annotations:
     gitlab.com/project-slug: riesgo/fraude-service
-    jenkins.io/job-full-name: riesgo/fraude-service/main
+    github.com/project-slug: banamex-tech/fraude-service
   tags: [spring-boot, java-17, kafka, ml, fraude, produccion, sla-critico]
   links:
     - url: https://gitlab.banamex.com/riesgo/fraude-service
@@ -368,7 +369,7 @@ metadata:
   description: Generación y envío automático de reportes regulatorios a CNBV y Banxico — R01, R04, R10, SIPRES
   annotations:
     gitlab.com/project-slug: cumplimiento/reportes-cnbv
-    jenkins.io/job-full-name: cumplimiento/reportes-cnbv/main
+    github.com/project-slug: banamex-tech/reportes-cnbv
   tags: [spring-boot, java-17, cnbv, banxico, regulatorio, produccion, batch]
   links:
     - url: https://gitlab.banamex.com/cumplimiento/reportes-cnbv
@@ -394,7 +395,7 @@ metadata:
   description: Spring Cloud Gateway — punto de entrada único para APIs internas y externas, rate limiting, auth y routing
   annotations:
     gitlab.com/project-slug: plataforma-ti/api-gateway
-    jenkins.io/job-full-name: plataforma-ti/api-gateway/main
+    github.com/project-slug: banamex-tech/api-gateway
   tags: [spring-cloud-gateway, java-17, api-gateway, produccion, seguridad]
   links:
     - url: https://gitlab.banamex.com/plataforma-ti/api-gateway
@@ -630,3 +631,313 @@ spec:
               description: Score calculado exitosamente
             '503':
               description: Modelo no disponible
+
+---
+# ═══════════════════════════════════════════════
+#  SISTEMA — API Management Platform (Apigee)
+# ═══════════════════════════════════════════════
+
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: api-management-platform
+  title: API Management Platform — Apigee
+  description: Capa de APIs externas gestionadas por Apigee X — Open Finance CNBV y servicios para socios fintech
+  tags: [apigee, api-management, openfinance, cnbv, google-cloud]
+spec:
+  owner: plataforma-ti
+
+---
+# ═══════════════════════════════════════════════
+#  RECURSOS — Apigee X
+# ═══════════════════════════════════════════════
+
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: apigee-gateway
+  title: Apigee X — API Gateway Externo
+  description: Google Apigee X en GCP — gobierno de APIs externas y exposición regulada Open Finance CNBV
+  tags: [apigee, api-gateway, google-cloud, openfinance, externo]
+  links:
+    - url: https://console.cloud.google.com/apigee
+      title: Apigee Console
+      icon: dashboard
+spec:
+  type: api-gateway
+  lifecycle: production
+  owner: plataforma-ti
+  system: api-management-platform
+
+---
+# ═══════════════════════════════════════════════
+#  COMPONENTES — Microservicios OpenShift nuevos
+# ═══════════════════════════════════════════════
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tarjetas-service
+  title: Tarjetas Service
+  description: Microservicio de tarjetas de crédito y débito — autorización, bloqueo, CVV dinámico y gestión de plásticos
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    gitlab.com/project-slug: core-banking/tarjetas-service
+    github.com/project-slug: banamex-tech/tarjetas-service
+    sonarqube.org/project-key: banamex-tarjetas-service
+    openshift.io/project: core-banking
+    openshift.io/deployment-config: tarjetas-service
+  tags: [spring-boot, java-17, rest-api, openshift, produccion, cnbv, tarjetas]
+  links:
+    - url: https://gitlab.banamex.com/core-banking/tarjetas-service
+      title: GitLab
+      icon: gitlab
+    - url: https://openshift.banamex.com/console/project/core-banking
+      title: OpenShift Console
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: core-banking
+  system: core-banking-platform
+  providesApis: [tarjetas-api]
+  dependsOn: [resource:ocp-cluster-prod, resource:postgres-cuentas-prod]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: onboarding-service
+  title: Onboarding Digital Service
+  description: Microservicio de alta digital de clientes — eKYC, validación INE/CURP, biométrica facial y apertura de cuenta express
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+    gitlab.com/project-slug: banca-digital/onboarding-service
+    github.com/project-slug: banamex-tech/onboarding-service
+    sonarqube.org/project-key: banamex-onboarding-service
+    openshift.io/project: banca-digital
+    openshift.io/deployment-config: onboarding-service
+  tags: [spring-boot, java-17, ekyc, biometrica, openshift, produccion, cnbv]
+  links:
+    - url: https://gitlab.banamex.com/banca-digital/onboarding-service
+      title: GitLab
+      icon: gitlab
+    - url: https://openshift.banamex.com/console/project/banca-digital
+      title: OpenShift Console
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: banca-digital
+  system: canales-digitales
+  providesApis: [onboarding-api]
+  consumesApis: [cuentas-api, scoring-api]
+  dependsOn: [resource:ocp-cluster-prod]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: stp-connector-service
+  title: STP Connector Service
+  description: Conector con Sistema de Transferencias y Pagos de Banxico — liquidación SPEI en tiempo real 24/7/365
+  annotations:
+    gitlab.com/project-slug: core-banking/stp-connector
+    github.com/project-slug: banamex-tech/stp-connector-service
+    openshift.io/project: core-banking
+    openshift.io/deployment-config: stp-connector
+  tags: [spring-boot, java-17, spei, stp, banxico, openshift, produccion, regulatorio]
+  links:
+    - url: https://gitlab.banamex.com/core-banking/stp-connector
+      title: GitLab
+      icon: gitlab
+    - url: https://openshift.banamex.com/console/project/core-banking
+      title: OpenShift Console
+      icon: dashboard
+spec:
+  type: service
+  lifecycle: production
+  owner: core-banking
+  system: core-banking-platform
+  consumesApis: [cuentas-api, transferencias-api]
+  dependsOn: [resource:ocp-cluster-prod, resource:kafka-cluster-prod]
+
+---
+# ═══════════════════════════════════════════════
+#  APIs — Expuestas por Apigee (externas/partners)
+# ═══════════════════════════════════════════════
+
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: open-banking-api
+  title: Open Banking API v1 — CNBV Open Finance
+  description: API regulada CNBV Open Finance — datos de cuentas y movimientos para terceros autorizados (TPPs)
+  annotations:
+    apigee.googleapis.com/proxy-name: open-banking-proxy
+    apigee.googleapis.com/environment: production
+    apigee.googleapis.com/organization: banamex
+  tags: [rest, openapi, openfinance, cnbv, apigee, externo, produccion]
+  links:
+    - url: https://developers.banamex.com/open-banking
+      title: Developer Portal
+      icon: dashboard
+spec:
+  type: openapi
+  lifecycle: production
+  owner: plataforma-ti
+  system: api-management-platform
+  definition: |
+    openapi: "3.1.0"
+    info:
+      title: Open Banking API — Banamex
+      version: "1.0.0"
+      description: "API Open Finance regulada CNBV — acceso a cuentas por TPPs autorizados"
+      contact:
+        name: API Management Team
+        email: api-management@banamex.com
+    servers:
+      - url: https://openbanking.banamex.com/v1
+    paths:
+      /accounts:
+        get:
+          summary: Listar cuentas del cliente (consentimiento requerido)
+          tags: [Accounts]
+          security:
+            - oauth2: [accounts:read]
+          responses:
+            '200':
+              description: Lista de cuentas con consentimiento activo
+            '401':
+              description: Consentimiento no otorgado
+      /accounts/{accountId}/transactions:
+        get:
+          summary: Movimientos de cuenta
+          tags: [Transactions]
+          parameters:
+            - name: accountId
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Historial de movimientos
+      /consents:
+        post:
+          summary: Crear consentimiento Open Finance
+          tags: [Consents]
+          responses:
+            '201':
+              description: Consentimiento creado
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: tarjetas-api
+  title: Tarjetas REST API v1
+  description: API de gestión de tarjetas de crédito y débito — autorización, bloqueo y CVV dinámico vía Apigee
+  annotations:
+    apigee.googleapis.com/proxy-name: tarjetas-proxy
+    apigee.googleapis.com/environment: production
+    apigee.googleapis.com/organization: banamex
+  tags: [rest, openapi, tarjetas, cnbv, apigee, produccion]
+spec:
+  type: openapi
+  lifecycle: production
+  owner: core-banking
+  system: core-banking-platform
+  definition: |
+    openapi: "3.1.0"
+    info:
+      title: Tarjetas API
+      version: "1.1.0"
+      description: API de tarjetas Banamex — crédito y débito
+    servers:
+      - url: https://api.banamex.com/v1/tarjetas
+    paths:
+      /tarjetas/{pan}/saldo:
+        get:
+          summary: Consultar saldo y límite de tarjeta
+          tags: [Tarjetas]
+          parameters:
+            - name: pan
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Saldo y límite disponible
+      /tarjetas/{pan}/bloqueo:
+        post:
+          summary: Bloquear tarjeta
+          tags: [Tarjetas]
+          responses:
+            '200':
+              description: Tarjeta bloqueada exitosamente
+      /tarjetas/{pan}/cvv-dinamico:
+        get:
+          summary: Generar CVV dinámico para compras en línea
+          tags: [Seguridad]
+          responses:
+            '200':
+              description: CVV dinámico (válido 30 segundos)
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: onboarding-api
+  title: Onboarding Digital API v1
+  description: API de alta digital de nuevos clientes — eKYC, validación INE/CURP y apertura express vía Apigee
+  annotations:
+    apigee.googleapis.com/proxy-name: onboarding-proxy
+    apigee.googleapis.com/environment: production
+    apigee.googleapis.com/organization: banamex
+  tags: [rest, openapi, onboarding, ekyc, cnbv, apigee, produccion]
+spec:
+  type: openapi
+  lifecycle: production
+  owner: banca-digital
+  system: canales-digitales
+  definition: |
+    openapi: "3.1.0"
+    info:
+      title: Onboarding Digital API
+      version: "1.0.0"
+      description: API de alta digital Banamex — eKYC y apertura express
+    servers:
+      - url: https://api.banamex.com/v1/onboarding
+    paths:
+      /solicitudes:
+        post:
+          summary: Iniciar proceso de alta digital
+          tags: [Onboarding]
+          responses:
+            '201':
+              description: Proceso de alta iniciado
+      /solicitudes/{id}/kyc:
+        post:
+          summary: Enviar documentos eKYC
+          tags: [KYC]
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Documentos validados
+      /solicitudes/{id}/biometria:
+        post:
+          summary: Captura biométrica facial
+          tags: [KYC]
+          responses:
+            '200':
+              description: Biométrica validada exitosamente
+      /solicitudes/{id}/cuenta:
+        post:
+          summary: Activar cuenta express
+          tags: [Onboarding]
+          responses:
+            '201':
+              description: Cuenta activada exitosamente
