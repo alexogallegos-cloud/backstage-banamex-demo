@@ -122,6 +122,17 @@ spec:
 apiVersion: backstage.io/v1alpha1
 kind: User
 metadata:
+  name: guest
+  title: Guest
+spec:
+  profile:
+    displayName: Guest
+    email: guest@banamex.com
+  memberOf: [plataforma-ti]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
   name: dev.banamex
   title: Developer Demo
 spec:

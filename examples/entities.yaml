@@ -416,7 +416,7 @@ kind: API
 metadata:
   name: cuentas-api
   title: Cuentas REST API v2
-  description: API REST para gestión de cuentas bancarias — OpenAPI 3.1 | Owner: core-banking
+  description: API REST para gestión de cuentas bancarias — OpenAPI 3.1
   tags: [rest, openapi, core, produccion]
 spec:
   type: openapi
