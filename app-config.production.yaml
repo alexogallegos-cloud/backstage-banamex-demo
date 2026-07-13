@@ -1,0 +1,37 @@
+# Railway production config — sobreescribe app-config.yaml
+# Variables de entorno que Railway provee:
+#   PORT          → puerto donde el backend debe escuchar (Railway lo asigna)
+#   APP_BASE_URL  → URL pública del servicio (ej. https://bdp-banamex.up.railway.app)
+#                   Configurar en Railway → Variables después del primer deploy
+app:
+  baseUrl: ${APP_BASE_URL}
+
+backend:
+  baseUrl: ${APP_BASE_URL}
+  listen:
+    port: ${PORT}
+    host: 0.0.0.0
+
+  # SQLite en memoria para la demo — sin necesidad de PostgreSQL
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+
+auth:
+  providers:
+    guest: {}
+
+catalog:
+  locations:
+    - type: file
+      target: ./examples/entities.yaml
+
+    - type: file
+      target: ./examples/template/template.yaml
+      rules:
+        - allow: [Template]
+
+    - type: file
+      target: ./examples/org.yaml
+      rules:
+        - allow: [User, Group]

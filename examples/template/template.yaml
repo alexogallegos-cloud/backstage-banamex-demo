@@ -1,0 +1,187 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: banamex-springboot-service
+  title: Nuevo Microservicio Spring Boot — Banamex
+  description: Template oficial del BDP para crear microservicios Spring Boot 3.x sobre OpenShift. Incluye estructura Maven, Dockerfile, pipeline Jenkins/Tekton y catalog-info.yaml pre-configurado.
+  tags:
+    - spring-boot
+    - java-17
+    - openshift
+    - banamex
+    - recomendado
+spec:
+  owner: group:plataforma-ti
+  type: service
+
+  parameters:
+    - title: Identificación del Servicio
+      required:
+        - serviceName
+        - serviceDescription
+        - businessDomain
+      properties:
+        serviceName:
+          title: Nombre del servicio
+          type: string
+          description: Nombre corto en kebab-case (ej. liquidez-intradía, conciliacion-sat)
+          pattern: '^[a-z][a-z0-9-]*[a-z0-9]$'
+          ui:autofocus: true
+        serviceDescription:
+          title: Descripción funcional
+          type: string
+          description: ¿Qué hace este servicio y por qué existe?
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+        businessDomain:
+          title: Dominio de negocio
+          type: string
+          enum:
+            - core-banking
+            - canales-digitales
+            - pagos-transferencias
+            - creditos
+            - riesgo-fraude
+            - cumplimiento-regulatorio
+            - data-analytics
+            - plataforma-ti
+          enumNames:
+            - Core Banking (cuentas, productos)
+            - Canales Digitales (web, mobile)
+            - Pagos y Transferencias (SPEI/SPID, CIE)
+            - Créditos (personales, auto, hipoteca)
+            - Riesgo y Fraude (ML, scoring)
+            - Cumplimiento Regulatorio (CNBV, Banxico)
+            - Data & Analytics (pipelines, reportes)
+            - Plataforma TI (infraestructura, BDP)
+        lifecycle:
+          title: Ciclo de vida inicial
+          type: string
+          default: experimental
+          enum: [experimental, development, production]
+          enumNames: [Experimental (PoC), Development (en desarrollo), Production (productivo)]
+
+    - title: Stack Técnico
+      required:
+        - javaVersion
+        - dbType
+      properties:
+        javaVersion:
+          title: Versión de Java
+          type: string
+          default: '17'
+          enum: ['17', '21']
+          enumNames:
+            - Java 17 LTS (estándar Banamex)
+            - Java 21 LTS (aprobado desde Q3 2025)
+        dbType:
+          title: Base de datos
+          type: string
+          default: postgresql
+          enum: [postgresql, oracle, none]
+          enumNames:
+            - PostgreSQL 15 (recomendado)
+            - Oracle DB 19c (legado aprobado)
+            - Sin base de datos (stateless)
+        messagingRequired:
+          title: ¿Requiere mensajería con Kafka?
+          type: boolean
+          default: false
+          description: Habilita dependencia de kafka-cluster-prod y configuración de consumer/producer
+        exposeApi:
+          title: ¿Expone API REST?
+          type: boolean
+          default: true
+          description: Genera OpenAPI 3.1 spec y registra la API en el catálogo BDP
+        cnbvScope:
+          title: ¿En scope regulatorio CNBV/Banxico?
+          type: boolean
+          default: false
+          description: Activa controles de auditoría, cifrado y logs requeridos por CNBV Circular Única
+
+    - title: CI/CD y Despliegue
+      required:
+        - ocpNamespace
+      properties:
+        cicdPlatform:
+          title: Motor de CI/CD
+          type: string
+          default: jenkins
+          enum: [jenkins, tekton]
+          enumNames:
+            - Jenkins (pipelines existentes)
+            - Tekton — OpenShift Pipelines (nuevo)
+        ocpNamespace:
+          title: Namespace destino en OpenShift
+          type: string
+          default: banamex-dev
+          description: Namespace donde se desplegará (banamex-dev / banamex-qa / banamex-prod)
+        replicas:
+          title: Réplicas en producción
+          type: integer
+          default: 2
+          minimum: 1
+          maximum: 10
+          description: Número de pods para alta disponibilidad
+
+    - title: Repositorio y Equipo
+      required:
+        - ownerTeam
+        - gitlabGroup
+      properties:
+        ownerTeam:
+          title: Equipo owner
+          type: string
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        gitlabGroup:
+          title: Grupo GitLab
+          type: string
+          default: core-banking
+          enum: [core-banking, banca-digital, plataforma-ti, ciberseguridad, riesgo, cumplimiento, data-analytics]
+          description: Grupo donde se creará el repositorio en gitlab.banamex.com
+        additionalOwners:
+          title: Co-owners adicionales (opcional)
+          type: array
+          items:
+            type: string
+            ui:field: EntityPicker
+            ui:options:
+              catalogFilter:
+                kind: User
+
+  steps:
+    - id: generate
+      name: Generar estructura Spring Boot
+      action: fetch:template
+      input:
+        url: ./content
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          description: ${{ parameters.serviceDescription }}
+          owner: ${{ parameters.ownerTeam }}
+          domain: ${{ parameters.businessDomain }}
+          javaVersion: ${{ parameters.javaVersion }}
+          dbType: ${{ parameters.dbType }}
+          kafkaEnabled: ${{ parameters.messagingRequired }}
+          exposeApi: ${{ parameters.exposeApi }}
+          cnbvScope: ${{ parameters.cnbvScope }}
+          cicd: ${{ parameters.cicdPlatform }}
+          namespace: ${{ parameters.ocpNamespace }}
+          replicas: ${{ parameters.replicas }}
+          lifecycle: ${{ parameters.lifecycle }}
+
+  output:
+    links:
+      - title: Ver repositorio en GitLab
+        url: 'https://gitlab.banamex.com/${{ parameters.gitlabGroup }}/${{ parameters.serviceName }}'
+        icon: gitlab
+      - title: Pipeline CI/CD
+        url: 'https://jenkins.banamex.com/job/${{ parameters.gitlabGroup }}/${{ parameters.serviceName }}'
+        icon: dashboard
+      - title: Ver en Software Catalog
+        icon: catalog
+        entityRef: 'component:default/${{ parameters.serviceName }}'

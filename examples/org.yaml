@@ -1,0 +1,180 @@
+---
+# ═══════════════════════════════════════════════
+#  GRUPOS / EQUIPOS — Banamex Technology
+# ═══════════════════════════════════════════════
+
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: tecnologia-banamex
+  title: Tecnología Banamex
+  description: Organización tecnológica principal — agrupa todos los equipos de TI
+spec:
+  type: organization
+  profile:
+    displayName: Tecnología Banamex
+    email: tecnologia@banamex.com
+  children: [banca-digital, core-banking, plataforma-ti, ciberseguridad, riesgo-fraude, cumplimiento, data-analytics]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: banca-digital
+  title: Banca Digital
+  description: Equipo de productos digitales — app móvil, portal web y canales digitales (4.2M usuarios)
+spec:
+  type: team
+  profile:
+    displayName: Banca Digital
+    email: banca-digital@banamex.com
+  parent: tecnologia-banamex
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: core-banking
+  title: Core Banking
+  description: Equipo de plataforma core — cuentas, transferencias SPEI/SPID y pagos
+spec:
+  type: team
+  profile:
+    displayName: Core Banking
+    email: core-banking@banamex.com
+  parent: tecnologia-banamex
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: plataforma-ti
+  title: Plataforma TI (IT4T)
+  description: Infraestructura, DevOps, OpenShift y plataforma — propietarios del BDP/IDP
+spec:
+  type: team
+  profile:
+    displayName: Plataforma TI — IT4T
+    email: it4t@banamex.com
+  parent: tecnologia-banamex
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: ciberseguridad
+  title: Ciberseguridad
+  description: Equipo de seguridad — IAM, SAST/DAST, secretos y cumplimiento CNBV/PCI-DSS
+spec:
+  type: team
+  profile:
+    displayName: Ciberseguridad
+    email: ciberseguridad@banamex.com
+  parent: tecnologia-banamex
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: riesgo-fraude
+  title: Riesgo & Fraude
+  description: Equipo de modelos ML — scoring crediticio y detección de fraude en tiempo real
+spec:
+  type: team
+  profile:
+    displayName: Riesgo & Fraude
+    email: riesgo@banamex.com
+  parent: tecnologia-banamex
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: cumplimiento
+  title: Cumplimiento Regulatorio
+  description: Equipo de compliance — reportes CNBV, Banxico, CONDUSEF y PLD/LFPIORPI
+spec:
+  type: team
+  profile:
+    displayName: Cumplimiento Regulatorio
+    email: cumplimiento@banamex.com
+  parent: tecnologia-banamex
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: data-analytics
+  title: Data & Analytics
+  description: Equipo de datos — pipelines, data lake Kafka+Spark y dashboards analíticos
+spec:
+  type: team
+  profile:
+    displayName: Data & Analytics
+    email: data-analytics@banamex.com
+  parent: tecnologia-banamex
+  children: []
+
+---
+# ═══════════════════════════════════════════════
+#  USUARIOS — Banamex Engineering Team
+# ═══════════════════════════════════════════════
+
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: dev.banamex
+  title: Developer Demo
+spec:
+  profile:
+    displayName: Developer Banamex
+    email: developer@banamex.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=dev
+  memberOf: [banca-digital]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: arq.plataforma
+  title: Arquitecto de Plataforma
+spec:
+  profile:
+    displayName: Arquitecto — IT4T Banamex
+    email: arquitectura@banamex.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=arq
+  memberOf: [plataforma-ti]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: lead.corebanking
+  title: Tech Lead — Core Banking
+spec:
+  profile:
+    displayName: Tech Lead Core Banking
+    email: lead-corebanking@banamex.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=lead
+  memberOf: [core-banking]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: sre.banamex
+  title: Site Reliability Engineer
+spec:
+  profile:
+    displayName: SRE — Plataforma TI
+    email: sre@banamex.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=sre
+  memberOf: [plataforma-ti]
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: sec.banamex
+  title: Security Engineer
+spec:
+  profile:
+    displayName: Security Engineer
+    email: seguridad-eng@banamex.com
+    picture: https://api.dicebear.com/7.x/avataaars/svg?seed=sec
+  memberOf: [ciberseguridad]
